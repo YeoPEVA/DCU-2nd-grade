@@ -1,0 +1,122 @@
+import java.util.Scanner;
+import java.util.Vector;
+
+abstract class Shape{
+    private Shape next;
+    public Shape() {next = null;}
+    public void setNext(Shape obj) {next = obj;}
+    public Shape getNext() {return next;}
+    public abstract void draw();
+}
+
+class Line extends Shape {
+    String name ="line";
+    public void draw() {
+        System.out.println("Line");
+    }
+}
+class Rect extends Shape {
+    String name ="Rect";
+    public void draw() {
+        System.out.println("Rect");
+    }
+}
+class Circle extends Shape {
+    String name ="circle";
+    public void draw() {
+        System.out.println("Circle");
+    }
+}
+
+public class GraphicEditor {
+    Scanner scanner = new Scanner(System.in);
+    Shape start = null, last = null;
+
+    public void run() {
+        System.out.println("그래픽 에디터 beauty를 실행합니다.");
+        while(true) {
+            System.out.print("삽입(1), 삭제(2), 모두 보기(3), 종료(4)>>");
+            int n = scanner.nextInt();
+            switch(n) {
+                case 1:
+                    System.out.print("Line(1), Rect(2), circle(3)>>");
+                    int shape = scanner.nextInt();
+                    insert(shape); break;
+                case 2:
+                    System.out.print("삭제할 도형의 위치>>");
+                    int target = scanner.nextInt();
+                    delete(target); break;
+                case 3:
+                    print(); break;
+                case 4:
+                    System.out.println("beauty을 종료합니다.");
+                    scanner.close();
+                    return;
+            }
+        }
+    }
+
+    public void insert(int shape) {
+        Shape s;
+        switch(shape) {
+            case 1:
+                s = new Line(); break;
+            case 2:
+                s = new Rect(); break;
+            case 3:
+                s = new Circle(); break;
+            default:
+                System.out.println("잘못된 입력입니다."); return;
+        }
+
+        if (start == null) {	//시작할 때는
+            start = s;			//start가 새 노드를 가리킴
+            last = start;
+        }
+        else {
+            last.setNext(s);	//노드 연걸
+            last = s;			//새 노드 가리킴
+        }
+    }
+
+    public void delete(int target) {
+        Shape current = start;
+        Shape temp = start;
+        int i;
+        if(target == 1) { // 첫번째 노드를 삭제하는 경우
+            if(start == last) { // 노드가 한개 일경우
+                start = null;
+                last = null;
+                return;
+            }
+            else { // 노드가 두개 이상
+                start = start.getNext();
+                return;
+            }
+        }
+        for(i = 1; i < target; i++) {
+            temp = current; // 현재 노드를 저장 후  (즉, 이전 노드)
+            current = current.getNext(); // 다음 노드로 이동
+            if(current == null) { // 노드 수가 입력 값보다 적을때
+                System.out.println("삭제할 수 없습니다.");
+                return;
+            }
+        }
+        if(i == target) { // 끝 노드를 가리킬때
+            temp.setNext(current.getNext());
+            last = temp;
+        }
+        else // 끝노드가 아니라면 이전노드가 다음 노드를 가리킴 (즉, 현재 노드 삭제)
+            temp.setNext(current.getNext());
+    }
+
+    public void print() {
+        Shape p = start;
+        while(p != null) {
+            p.draw();
+            p = p.getNext();
+        }
+    }
+
+}
+

@@ -1,0 +1,155 @@
+package final_gui;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+
+import final_gui.Calculator;
+import final_gui.JavaManual;
+import final_gui.ReactionTimeGame;
+
+public class NotepadAndPaint extends JFrame {
+    private JTabbedPane tabbedPane;
+    private JTextArea textArea;
+    private DrawPanel drawPanel;
+
+    public NotepadAndPaint() {
+        setTitle("Notepad and Paint");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        tabbedPane = new JTabbedPane();
+
+        // 메모장 탭
+        textArea = new JTextArea();
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        tabbedPane.addTab("Notepad", scrollPane);
+
+        // 그림판 탭
+        drawPanel = new DrawPanel();
+        tabbedPane.addTab("Paint", drawPanel);
+
+        // 계산기 탭
+        drawPanel = new DrawPanel();
+        tabbedPane.addTab("Calculator", drawPanel);
+
+        // 반응속도 탭
+        drawPanel = new DrawPanel();
+        tabbedPane.addTab("Game", drawPanel);
+
+        // 매뉴얼 탭
+        drawPanel = new DrawPanel();
+        tabbedPane.addTab("Manual", drawPanel);
+
+        add(tabbedPane);
+
+        createMenuBar();
+
+        setVisible(true);
+    }
+
+    private void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem newItem = new JMenuItem("New");
+        newItem.addActionListener(e -> textArea.setText(""));
+
+        JMenuItem openItem = new JMenuItem("Open");
+        openItem.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int option = fileChooser.showOpenDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                    textArea.read(reader, null);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+
+            int option = fileChooser.showSaveDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelectedFile()))) {
+                    textArea.write(writer);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.addActionListener(e -> System.exit(0));
+
+        fileMenu.add(newItem);
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(NotepadAndPaint::new);
+    }
+}
+
+
+
+
+// 그림판
+class DrawPanel extends JPanel {
+    private Image image;
+    private Graphics2D g2;
+    private int x, y, prevX, prevY;
+
+    public DrawPanel() {
+        setDoubleBuffered(false);
+        addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                prevX = e.getX();
+                prevY = e.getY();
+            }
+        });
+        addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseDragged(MouseEvent e) {
+                x = e.getX();
+                y = e.getY();
+
+                if (g2 != null) {
+                    g2.drawLine(prevX, prevY, x, y);
+                    repaint();
+                    prevX = x;
+                    prevY = y;
+                }
+            }
+        });
+    }
+
+    protected void paintComponent(Graphics g) {
+        if (image == null) {
+            image = createImage(getSize().width, getSize().height);
+            g2 = (Graphics2D) image.getGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            clear();
+        }
+        g.drawImage(image, 0, 0, null);
+    }
+
+    public void clear() {
+        g2.setPaint(Color.white);
+        g2.fillRect(0, 0, getSize().width, getSize().height);
+        g2.setPaint(Color.black);
+        repaint();
+    }
+}
+

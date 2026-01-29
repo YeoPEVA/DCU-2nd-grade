@@ -1,0 +1,98 @@
+package final_gui;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+
+// 패키지 내 다른 클래스들을 임포트합니다.
+import final_gui.Calculator;
+import final_gui.JavaManual;
+import final_gui.ReactionTimeGame;
+
+public class NotepadAndPaint extends JFrame {
+    private JTabbedPane tabbedPane;
+    private JTextArea textArea;
+    private DrawPanel drawPanel;
+
+    public NotepadAndPaint() {
+        setTitle("Notepad and Paint");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        tabbedPane = new JTabbedPane();
+
+        // 메모장 탭
+        textArea = new JTextArea();
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        tabbedPane.addTab("Notepad", scrollPane);
+
+        // 그림판 탭
+        drawPanel = new DrawPanel();
+        tabbedPane.addTab("Paint", drawPanel);
+
+        // 계산기 탭
+        Calculator calculator = new Calculator();
+        tabbedPane.addTab("Calculator", calculator.getContentPane());
+
+        // 반응속도 게임 탭
+        ReactionTimeGame reactionTimeGame = new ReactionTimeGame();
+        tabbedPane.addTab("Reaction Time Game", reactionTimeGame.getContentPane());
+
+        // 자바 매뉴얼 탭
+        JavaManual javaManual = new JavaManual();
+        tabbedPane.addTab("Java Manual", javaManual.getContentPane());
+
+        add(tabbedPane);
+
+        createMenuBar();
+
+        setVisible(true);
+    }
+
+    private void createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("File");
+
+        JMenuItem newItem = new JMenuItem("New");
+        newItem.addActionListener(e -> textArea.setText(""));
+
+        JMenuItem openItem = new JMenuItem("Open");
+        openItem.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int option = fileChooser.showOpenDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(fileChooser.getSelectedFile()))) {
+                    textArea.read(reader, null);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int option = fileChooser.showSaveDialog(this);
+            if (option == JFileChooser.APPROVE_OPTION) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileChooser.getSelected'
+
+    JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.addActionListener(e -> System.exit(0));
+
+        fileMenu.add(newItem);
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.addSeparator();
+        fileMenu.add(exitItem);
+
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+    }
+
+    public static void main(String[] args) {
+    SwingUtilities.invokeLater(NotepadAndPaint::new);
+    }
+}
